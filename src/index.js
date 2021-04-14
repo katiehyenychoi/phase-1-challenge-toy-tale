@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     submitData(inputName, inputImage, 0);
     //let whatUserTyped
+    evt.target.reset()
   })
 
 
