@@ -21,19 +21,19 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
-toyForm.addEventListener('submit', (evt) => {
-  evt.preventDefault();
+  toyForm.addEventListener('submit', (evt) => {
+    evt.preventDefault();
 
-  //console.log(evt.target.name.value)
+    //console.log(evt.target.name.value)
 
-  let inputName = evt.target.name.value
-  let inputImage = evt.target.image.value
+    let inputName = evt.target.name.value
+    let inputImage = evt.target.image.value
 
-  submitData(inputName, inputImage, 0);
+    submitData(inputName, inputImage, 0);
 
-  //let whatUserTyped
+    //let whatUserTyped
 
-} )
+  })
 
 
   // GET fetch request
@@ -42,9 +42,9 @@ toyForm.addEventListener('submit', (evt) => {
     .then(toyJson => {
       // console.log(toyJson)
       renderToys(toyJson)
-    })
+    }) //closing second .then
 
-// helper function for GET request
+  // helper function for GET request
   function renderToys(toyArr) {
     toyArr.forEach(toy => {
       let toyDiv = document.createElement("div")
@@ -63,52 +63,78 @@ toyForm.addEventListener('submit', (evt) => {
 
       toyDiv.append(toyH2, toyImage, toyP, toyBtn)
       toyCollectionDiv.append(toyDiv)
-    })
+
+      //Create an Event Listener for toyBtn
+      toyBtn.addEventListener("click", (evt) => {
+        fetch(`http://localhost:3000/toys/${toy.id}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({
+            "likes": toy.likes + 1
+          })
+        })
+          .then(resp => resp.json())
+          .then((updatedToyObj) => {
+            //Update the DOM
+            toyP.innerText = `${updatedToyObj.likes} Likes`
+
+            //Update the Object in Memory
+            toy.likes = updatedToyObj.likes
+          }) //closing second .then
+
+
+      }) //closing Event listener
+
+
+    }) //closes forEach
+
+
   }
 
 
- // POST fetch request 
-function submitData(name, image, likes){
+  // POST fetch request 
+  function submitData(name, image, likes) {
 
-  let formData = {
-    "name": name,
-    "image": image,
-    "likes": likes
-  }
-  
-  let configObj = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json"
-    },
-    body: JSON.stringify(formData)
-  }
-    
-  
-  fetch('http://localhost:3000/toys', configObj)
-  .then(resp => resp.json())
-  .then(function(object){
-    let toyDiv = document.createElement("div")
-      toyDiv.className = "card"
-      let toyH2 = document.createElement("h2")
-      toyH2.innerText = object.name
-      let toyImage = document.createElement("img")
-      toyImage.className = "toy-avatar"
-      toyImage.src = object.image
-      let toyP = document.createElement("p")
-      toyP.innerText = `${object.likes} Likes`
-      let toyBtn = document.createElement("button")
-      toyBtn.className = "like-btn"
-      toyBtn.id = object.id
-      toyBtn.innerText = "Like <3"
+    let formData = {
+      "name": name,
+      "image": image,
+      "likes": likes
+    }
 
-      toyDiv.append(toyH2, toyImage, toyP, toyBtn)
-      toyCollectionDiv.append(toyDiv)
-  })
- //console.log(submitData('name','image','3'))
-  
+    let configObj = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify(formData)
+    }
 
+
+    fetch('http://localhost:3000/toys', configObj)
+      .then(resp => resp.json())
+      .then(function (object) {
+        let toyDiv = document.createElement("div")
+        toyDiv.className = "card"
+        let toyH2 = document.createElement("h2")
+        toyH2.innerText = object.name
+        let toyImage = document.createElement("img")
+        toyImage.className = "toy-avatar"
+        toyImage.src = object.image
+        let toyP = document.createElement("p")
+        toyP.innerText = `${object.likes} Likes`
+        let toyBtn = document.createElement("button")
+        toyBtn.className = "like-btn"
+        toyBtn.id = object.id
+        toyBtn.innerText = "Like <3"
+
+        toyDiv.append(toyH2, toyImage, toyP, toyBtn)
+        toyCollectionDiv.append(toyDiv)
+      })
+    //console.log(submitData('name','image','3'))
 
 
 
@@ -126,9 +152,11 @@ function submitData(name, image, likes){
 
 
 
-//CLOSING CODE VVVVVVVVV
 
-  
-};
 
-})  
+    //CLOSING CODE VVVVVVVVV
+
+
+  };
+
+})
